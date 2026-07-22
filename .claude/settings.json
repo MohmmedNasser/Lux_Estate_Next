@@ -13,7 +13,13 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(curl -s -o /dev/null -w \"status:%{http_code}\\\\n\" http://localhost:3000)",
       "Bash(curl -s -o /dev/null -w \"status:%{http_code}\\\\n\" http://localhost:3002)",
-      "Bash(curl -s http://localhost:3002)"
+      "Bash(curl -s http://localhost:3002)",
+      "Bash(npx --yes shadcn@latest add alert-dialog)",
+      "Bash(curl -s \"http://localhost:3001/properties?listingType=rent&bedrooms=2\")",
+      "Bash(curl -s \"http://localhost:3001/properties\")",
+      "Bash(curl -s \"http://localhost:3001/\")",
+      "Bash(curl -s \"http://localhost:3001/dashboard\")",
+      "Bash(curl -s \"http://localhost:3001/properties/prop-1\")"
     ]
   }
 }

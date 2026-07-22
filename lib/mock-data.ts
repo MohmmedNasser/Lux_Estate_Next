@@ -8,6 +8,34 @@ export const mockUser: User = {
   createdAt: "2024-11-03T09:15:00.000Z",
 };
 
+interface Owner {
+  name: string;
+  avatar: string;
+  phone: string;
+  email: string;
+}
+
+export const mockOwners: Record<string, Owner> = {
+  "user-1": {
+    name: mockUser.name,
+    avatar: mockUser.avatar ?? "",
+    phone: "+1 512-555-0110",
+    email: mockUser.email,
+  },
+  "user-2": {
+    name: "David Chen",
+    avatar: "https://picsum.photos/seed/david-chen/200/200",
+    phone: "+1 512-555-0176",
+    email: "david.chen@example.com",
+  },
+  "user-3": {
+    name: "Amara Okafor",
+    avatar: "https://picsum.photos/seed/amara-okafor/200/200",
+    phone: "+1 512-555-0134",
+    email: "amara.okafor@example.com",
+  },
+};
+
 function images(seed: string, count: number): string[] {
   return Array.from(
     { length: count },
