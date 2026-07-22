@@ -4,7 +4,16 @@
       "Bash(npx --yes create-next-app@latest . --typescript --tailwind --app --eslint --import-alias \"@/*\" --use-npm --no-src-dir)",
       "Bash(npx --yes create-next-app@latest --help)",
       "Bash(npx --yes create-next-app@latest lux-estate --typescript --tailwind --app --eslint --import-alias \"@/*\" --use-npm --disable-git --yes)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx --yes shadcn@latest add sheet)",
+      "Bash(npx tsc *)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\(Object.keys\\(l\\).filter\\(k => /facebook|instagram|twitter|linkedin|x$|share/i.test\\(k\\)\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\(Object.keys\\(l\\).filter\\(k => /^Lucide\\(Youtube|Github|Twitch|Dribbble|Figma|Slack|Chrome\\)/i.test\\(k\\)\\)\\)\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); ['Camera','Bird','Globe','Share2','MessageCircle','Send','Rss','AtSign'].forEach\\(k => console.log\\(k, !!l[k]\\)\\)\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"status:%{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(curl -s -o /dev/null -w \"status:%{http_code}\\\\n\" http://localhost:3002)",
+      "Bash(curl -s http://localhost:3002)"
     ]
   }
 }
