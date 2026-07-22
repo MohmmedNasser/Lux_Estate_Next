@@ -55,18 +55,20 @@
   --card-foreground: #1e2530;
   --popover: #ffffff;
   --popover-foreground: #1e2530;
-  --primary: #96692b;
+  /* Brand accent = Tailwind amber-700 (matches bg-amber-700 exactly) */
+  --primary: oklch(0.555 0.163 48.998);
   --primary-foreground: #ffffff;
   --secondary: #f1ece1;
   --secondary-foreground: #1e2530;
   --muted: #f1ece1;
   --muted-foreground: #6e6a61;
-  --accent: #96692b;
+  --accent: oklch(0.555 0.163 48.998);
   --accent-foreground: #ffffff;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #e7e0d2;
   --input: #e7e0d2;
-  --ring: #96692b;
+  /* Focus rings = amber-600, matching the new components */
+  --ring: oklch(0.666 0.179 58.318);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -90,18 +92,19 @@
   --card-foreground: #f4f1e9;
   --popover: #1b222c;
   --popover-foreground: #f4f1e9;
-  --primary: #c99a4c;
-  --primary-foreground: #1b212b;
+  /* Brand accent = amber-700, white text for legibility on dark surfaces */
+  --primary: oklch(0.555 0.163 48.998);
+  --primary-foreground: #ffffff;
   --secondary: #232b37;
   --secondary-foreground: #f4f1e9;
   --muted: #232b37;
   --muted-foreground: #a6a199;
-  --accent: #c99a4c;
-  --accent-foreground: #1b212b;
+  --accent: oklch(0.555 0.163 48.998);
+  --accent-foreground: #ffffff;
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: #c99a4c;
+  --ring: oklch(0.666 0.179 58.318);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
