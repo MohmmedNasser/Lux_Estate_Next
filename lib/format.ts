@@ -1,16 +1,19 @@
 import type { ListingType, PropertyType } from "@/types";
 
+export function formatPriceValue(price: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
 export function formatPrice(
   price: number,
   currency: string,
   listingType: ListingType,
 ): string {
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(price);
-
+  const formatted = formatPriceValue(price, currency);
   return listingType === "rent" ? `${formatted}/mo` : formatted;
 }
 
