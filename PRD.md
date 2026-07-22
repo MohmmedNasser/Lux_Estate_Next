@@ -12,7 +12,8 @@ A simple real estate web platform where users can browse properties for sale or 
 
 **Project name:** Lux Estate
 **Type:** Web application
-**Stack:** Next.js 16 (App Router) + TypeScript + Tailwind CSS
+**Stack:** Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + framer-motion + shadcn/ui (on Base UI, not Radix)
+**Brand accent:** amber-700, wired through the `--primary` design token in `app/globals.css` (so `bg-primary` == `bg-amber-700`)
 
 ---
 

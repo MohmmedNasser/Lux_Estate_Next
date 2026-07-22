@@ -8,12 +8,13 @@
 ## 1. Design Direction
 
 - **Style:** clean, minimal, modern. Generous whitespace, no visual clutter.
-- **Colors:** off-white background, dark navy/charcoal text, one accent color for CTAs and active states.
-- **Typography:** one sans-serif family. Bold, confident headings; comfortable body text.
+- **Colors:** off-white background, dark charcoal text (`neutral-900`), **amber-700 as the single brand accent** for CTAs, active states, and links. The accent lives in the `--primary` / `--accent` design tokens in `app/globals.css` (`--ring` = amber-600) — style with `bg-primary` / `text-primary` OR the raw `amber-*` utilities; both resolve to the same amber. Do not introduce a second accent hue.
+- **Typography:** one sans-serif family — **Inter** (`--font-sans`, loaded via `next/font`). Bold, confident headings; comfortable body text.
 - **Corners & shadows:** subtle rounded corners, soft shadows on cards only.
-- **Responsive:** mobile-first. Breakpoints at `sm`, `md`, `lg`.
-- **States:** every interactive element needs hover, focus, active, and disabled states.
-- **Images:** use `next/image` with placeholder images from a service like `picsum.photos`.
+- **Motion:** `framer-motion`. Reuse the shared variants/easing in `lib/motion.ts` (`fadeUp`, `scaleIn`, `stagger`, `viewportOnce`, `EASE`) — no new easings. Reveal-on-scroll uses `whileInView` + `viewport={{ once: true }}`; always honor `useReducedMotion()`.
+- **Responsive:** mobile-first. Breakpoints at `xs` (25rem, custom), `sm`, `md`, `lg`, `xl`. Gate hover effects behind `@media (hover:hover)`.
+- **States:** every interactive element needs hover, focus-visible (amber ring), active, and disabled states. Touch targets ≥ `h-11`.
+- **Images:** `next/image` with `picsum.photos` placeholders (allow-listed in `next.config.ts`). Always pass correct `sizes` per breakpoint and descriptive `alt`.
 
 ---
 
@@ -37,33 +38,44 @@ app/
 └── contact/page.tsx
 
 components/
-├── layout/        # Header, Footer, Container
-├── property/      # PropertyCard, PropertyGrid, FilterBar, PropertyGallery
+├── layout/        # SiteHeader, NavLink, MobileNav, Footer, Container
+├── home/          # Hero, FeaturedProperties, HowItWorks, CtaBanner, FeaturedPropertyCard (hero overlay card only)
+├── property/      # PropertyCard, FeaturedPropertyCard (canonical listing card), grid, filters, gallery + full property-detail set (see §3)
 ├── forms/         # PropertyForm, ContactForm, AuthForm
-└── ui/            # shadcn/ui components
+└── ui/            # shadcn/ui primitives (Base UI): button, sheet, native-select, form-field, alert-dialog
+
+hooks/
+└── useScrollState.ts   # header scrolled state (single source of truth, hysteresis)
 
 lib/
-├── mock-data.ts   # mock properties, users, inquiries
-└── utils.ts
+├── mock-data.ts        # mock properties, owners, users, inquiries
+├── format.ts           # price / size / type / amenity / date formatters
+├── property-filters.ts # parse + filter + sort (URL search params → results)
+├── locations.ts        # location option list
+├── validation.ts       # isValidEmail
+├── motion.ts           # shared framer-motion variants + EASE
+└── utils.ts            # cn()
 
 types/
-└── index.ts       # shared types from PRD.md
+└── index.ts            # shared types from PRD.md
 ```
+
+> Server Components by default; add `"use client"` only where interactivity requires it (forms, filters, gallery/lightbox, modals, motion, scroll state). Overlays (mobile nav, lightbox, inquiry modal) render through a **portal to `document.body`** so they escape the header's `backdrop-filter` containing block.
 
 ---
 
 ## 3. Shared Components
 
-### `Header`
-Logo (left) · Nav links: Home, Properties, About, Contact (center) · "Add Property" button + Login/Avatar (right).
-Sticky on scroll. Hamburger menu with a slide-in drawer on mobile.
+### `SiteHeader` (+ `NavLink`, `MobileNav`)
+`fixed` top bar, `h-16 lg:h-[72px]`. Logo with amber mark (left) · nav centered on `lg+` (right) · Login + "Add Property" pill CTA.
+**Two states driven by one boolean** (`useScrollState`, hysteresis 24/12px): State A = transparent over the dark home hero (light text + scrim); State B = solid `bg-white/85` blur bar. Background AND text color both derive from that single value so they can never desync into invisible text. Non-hero pages mount solid immediately (`variant` prop, auto-solid off the homepage). Active `NavLink` shows a sliding `layoutId` underline. Mobile: hamburger → full-screen overlay panel (`MobileNav`) with focus trap, Esc, scroll-lock, route-change close.
 
 ### `Footer`
 Four columns: brand + short description, quick links, contact info, social icons. Copyright bar at the bottom.
 
-### `PropertyCard`
-Image with a **Buy** or **Rent** badge overlay · price (large, bold) · title · location with a pin icon · a row of beds / baths / size icons.
-Hover: slight lift and image zoom. Entire card links to `/properties/[id]`.
+### `PropertyCard` / `FeaturedPropertyCard`
+Image with a **For Sale** / **For Rent** badge overlay · price (large, bold, over a gradient scrim) · title · location with a pin icon · a row of beds / baths / size icons · a Save (heart) toggle.
+Hover (hover-capable devices only): slight lift and image zoom. Entire card links to `/properties/[id]`. `components/property/FeaturedPropertyCard` is the canonical card — reuse it for featured, grid, and "Similar properties"; do not fork a second variant. (`components/home/FeaturedPropertyCard` is a separate, smaller card used only as the hero image overlay.)
 
 ### `FilterBar`
 Fields: Buy/Rent toggle · Location (select) · Property Type (select) · Price Range (min/max) · Bedrooms · Bathrooms · Search button.
@@ -71,6 +83,10 @@ Horizontal layout on the home page hero; vertical sidebar layout on the properti
 
 ### `PropertyGrid`
 Responsive grid of `PropertyCard`: 1 column mobile, 2 tablet, 3 desktop. Handles empty state and loading skeletons.
+
+### Property-detail components
+The `/properties/[id]` page is composed from dedicated components (see §4.3):
+`PropertyHeader` · `PropertyGallery` + `GalleryLightbox` · `PropertyOverview` · `AmenitiesGrid` · `LocationMap` · `OwnerCard` · `InquiryModal` · `MobileActionBar` · `SimilarProperties`. Server components wherever no state is needed; the gallery, lightbox, owner card, inquiry modal, mobile bar, and similar-properties reveal are client components.
 
 ---
 
@@ -102,20 +118,25 @@ Filters update the URL query string (e.g. `/properties?listingType=rent&bedrooms
 
 ### 4.3 Property Details — `/properties/[id]`
 
-1. Breadcrumb: Home / Properties / [Title]
-2. **Image gallery** — large main image + thumbnail strip, click to open a lightbox
-3. **Left column:**
-   - Title, location, Buy/Rent badge
-   - Price (large)
-   - Key specs row: bedrooms, bathrooms, size, property type
-   - Description
-   - Amenities — grid of items with check icons
-   - Map placeholder box
-4. **Right column (sticky):**
-   - Owner contact card: avatar, name, phone, email
-   - "Buy Now" or "Rent Now" button (depending on `listingType`)
-   - Inquiry form: name, email, phone, message, Send button
-5. **Similar Properties** — `PropertyGrid` with 3 mock properties
+Modern listing layout (Airbnb/fleet style). The title block sits **above** the gallery so the user knows what the listing is before scrolling through photos.
+
+1. **`PropertyHeader`** — breadcrumb (Home / Properties / [Title]; "← Back to Properties" on mobile) → title row with Share / Save / More pills → meta row (status badge, property type · location).
+2. **`PropertyGallery`** — mosaic gallery, not a hero + thumb strip:
+   - `lg+`: 4-col / 2-row mosaic (big lead image + up to 4 tiles), only outer corners rounded.
+   - `sm–lg`: wide lead image + a pair below.
+   - `< sm`: full-bleed snap carousel with dot indicators.
+   - "Show all N photos" button opens **`GalleryLightbox`** (portal, `AnimatePresence`, arrow-key + swipe nav, Esc, focus trap, scroll lock, `N / total` counter).
+3. **Two-column body** (`lg:grid-cols-[1fr_380px]`, `xl:_400px`); left blocks divided by `border-b`:
+   - **`PropertyOverview`** — price (`/mo` for rent), "Listed by [owner]" + avatar, inline spec `<dl>` (icon + value + word label; bedrooms/bathrooms hidden when 0).
+   - **Description** — clamped prose (`max-w-[68ch]`).
+   - **`AmenitiesGrid`** — 2-col grid; each amenity maps to a real lucide icon (Parking→Car, Garden→Trees, Balcony→Wind, A/C→Snowflake, …), never a generic check.
+   - **`LocationMap`** — gridded map surface with a pinging amber pin + floating address card and an "Open in Maps" link. Never a "coming soon" box.
+4. **`OwnerCard`** (right column, `lg:sticky lg:top-24`; on mobile renders in-flow after the description):
+   - Price restated · owner (avatar + verified badge, name, role) · phone/email contact rows.
+   - **One** primary CTA — "Request a Viewing" / "Request to Rent" — opens **`InquiryModal`** (the inquiry form is NOT open inline). Secondary "Save". Fine print.
+5. **`MobileActionBar`** (`< lg`) — `fixed` bottom bar: price + `bd · ba`, CTA opens the same modal. Page adds bottom padding so content clears it.
+6. **`InquiryModal`** — centered modal (desktop) / drag-dismiss bottom sheet (mobile). Fields: Name, Email, Phone (optional), Message (inputs `≥16px` on mobile to stop iOS zoom). Client validation, loading → success state, focus trap, Esc, focus restore.
+7. **`SimilarProperties`** — 3 mock properties reusing `FeaturedPropertyCard`, staggered `whileInView` reveal.
 
 ---
 
