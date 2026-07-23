@@ -40,7 +40,7 @@ app/
 components/
 ├── layout/        # SiteHeader, NavLink, MobileNav, Footer, Container
 ├── home/          # Hero, FeaturedProperties, HowItWorks, CtaBanner, FeaturedPropertyCard (hero overlay card only)
-├── property/      # PropertyCard, FeaturedPropertyCard (canonical listing card), grid, filters, gallery + full property-detail set (see §3)
+├── property/      # FeaturedPropertyCard (canonical listing card), grid, filters, gallery + full property-detail set (see §3)
 ├── forms/         # PropertyForm, ContactForm, AuthForm
 └── ui/            # shadcn/ui primitives (Base UI): button, sheet, native-select, form-field, alert-dialog
 
@@ -73,16 +73,16 @@ types/
 ### `Footer`
 Four columns: brand + short description, quick links, contact info, social icons. Copyright bar at the bottom.
 
-### `PropertyCard` / `FeaturedPropertyCard`
+### `FeaturedPropertyCard`
 Image with a **For Sale** / **For Rent** badge overlay · price (large, bold, over a gradient scrim) · title · location with a pin icon · a row of beds / baths / size icons · a Save (heart) toggle.
-Hover (hover-capable devices only): slight lift and image zoom. Entire card links to `/properties/[id]`. `components/property/FeaturedPropertyCard` is the canonical card — reuse it for featured, grid, and "Similar properties"; do not fork a second variant. (`components/home/FeaturedPropertyCard` is a separate, smaller card used only as the hero image overlay.)
+Hover (hover-capable devices only): slight lift and image zoom. Entire card links to `/properties/[id]`. `components/property/FeaturedPropertyCard` is the single, canonical listing card — reused for featured, grid, and "Similar properties"; there is no separate fork. (`components/home/FeaturedPropertyCard` is a distinct, smaller card used only as the hero image overlay.)
 
 ### `FilterBar`
 Fields: Buy/Rent toggle · Location (select) · Property Type (select) · Price Range (min/max) · Bedrooms · Bathrooms · Search button.
 Horizontal layout on the home page hero; vertical sidebar layout on the properties page. Same component, controlled by a `variant` prop.
 
 ### `PropertyGrid`
-Responsive grid of `PropertyCard`: 1 column mobile, 2 tablet, 3 desktop. Handles empty state and loading skeletons.
+Responsive grid of `FeaturedPropertyCard`: 1 column mobile, 2 tablet, 3 desktop. Handles empty state and loading skeletons.
 
 ### Property-detail components
 The `/properties/[id]` page is composed from dedicated components (see §4.3):
@@ -120,7 +120,7 @@ Filters update the URL query string (e.g. `/properties?listingType=rent&bedrooms
 
 Modern listing layout (Airbnb/fleet style). The title block sits **above** the gallery so the user knows what the listing is before scrolling through photos.
 
-1. **`PropertyHeader`** — breadcrumb (Home / Properties / [Title]; "← Back to Properties" on mobile) → title row with Share / Save / More pills → meta row (status badge, property type · location).
+1. **`PropertyHeader`** — breadcrumb (Home / Properties / [Title]; "← Back to Properties" on mobile) → title row with Share / Save / Copy Link pills (each swaps to a check icon + confirmation label on success; no bare icon-only affordances) → meta row (status badge, property type · location). Scrolls the window to top on mount and whenever the property `id` changes, so navigating directly between two detail pages (e.g. via Similar Properties) doesn't leave the scroll position stranded.
 2. **`PropertyGallery`** — mosaic gallery, not a hero + thumb strip:
    - `lg+`: 4-col / 2-row mosaic (big lead image + up to 4 tiles), only outer corners rounded.
    - `sm–lg`: wide lead image + a pair below.
@@ -222,7 +222,7 @@ Build in this sequence, reviewing each step before continuing:
 
 1. Phase 0 setup + `types/index.ts` + `lib/mock-data.ts`
 2. `Header` and `Footer` + root layout
-3. `PropertyCard`, `PropertyGrid`, `FilterBar`
+3. `FeaturedPropertyCard`, `PropertyGrid`, `FilterBar`
 4. Home page
 5. All Properties page
 6. Property Details page

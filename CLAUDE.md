@@ -29,6 +29,25 @@ This is a phased build defined by [PRD.md](PRD.md) and [PRD-FRONTEND.md](PRD-FRO
 - Every mock object must match the types in [types/index.ts](types/index.ts) exactly. Those types are the **frontend/backend contract** — the future backend must satisfy them, so change them deliberately.
 - Out-of-scope features (payments, chat, agent profiles, i18n, admin panel, reviews) are excluded by the PRD. Don't add them.
 
+## Keep the PRDs in sync — every change
+
+[PRD.md](PRD.md) and [PRD-FRONTEND.md](PRD-FRONTEND.md) are the source of truth, not a historical record. **Whenever a change makes them inaccurate, update them in the same turn as the code** — do not leave it for later or ask whether to bother. Report what you updated alongside the code change.
+
+What lands in which file:
+
+- **[PRD.md](PRD.md)** — anything touching the shared contract or the shape of the product: a change to [types/index.ts](types/index.ts) (mirror it into §6 verbatim), a new/removed/renamed route (§7), a scope decision in or out (§4), a phase transition (§8).
+- **[PRD-FRONTEND.md](PRD-FRONTEND.md)** — anything about how Phase 1 is built: a new or renamed component or `lib/` module (§2 folder structure), a change to a shared component's props or behavior (§3), a page's sections/layout/interactions (§4.x), mock-data shape or counts (§5), build-order progress (§6).
+
+Rules of thumb:
+
+- A **new component, hook, or `lib/` module** → add it to the §2 tree, and to §3 if it's shared across pages.
+- A **deliberate divergence** from a spec (a layout that reads better, a dropped sub-feature) → rewrite the spec to match what was built. Never let code and PRD disagree silently; if the divergence is worth questioning, make the edit *and* flag it.
+- A **type change** → PRD.md §6 and `types/index.ts` must stay character-identical.
+- **Match the existing voice**: terse, present tense, backtick-quoted identifiers, relative markdown links to real files. Edit the affected lines surgically — do not restructure or reformat sections that didn't change.
+- Renaming, moving, or deleting a file means fixing **every** PRD reference to it, in both files.
+
+Purely internal edits that change nothing a PRD asserts (a refactor behind stable props, a bugfix, a copy tweak) need no PRD edit.
+
 ## Architecture
 
 **App Router, Server Components by default.** Pages under [app/](app/) are async Server Components that read `mock-data`, compute, and pass plain data down. Add `"use client"` only where interactivity requires it (forms, filter state, drawers, motion).
@@ -53,4 +72,4 @@ This is a phased build defined by [PRD.md](PRD.md) and [PRD-FRONTEND.md](PRD-FRO
 
 ## Working style (from PRD §9)
 
-Build **one page/feature at a time**; reuse shared components (`PropertyCard`, `PropertyGrid`, `FilterBar`) instead of duplicating markup; keep components small and fully typed.
+Build **one page/feature at a time**; reuse shared components (`FeaturedPropertyCard`, `PropertyGrid`, `FilterBar`) instead of duplicating markup; keep components small and fully typed.

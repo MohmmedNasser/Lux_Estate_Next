@@ -58,6 +58,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     <>
       <Container className="pt-6 pb-24 sm:pt-8 lg:pb-16">
         <PropertyHeader
+          id={property.id}
           title={property.title}
           typeLabel={typeLabel}
           location={property.location}
