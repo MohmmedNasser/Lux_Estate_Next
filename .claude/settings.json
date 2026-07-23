@@ -79,7 +79,25 @@
       "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-dashboard.cjs\")",
       "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-add-property.cjs\")",
       "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-addprop-mobile.cjs\")",
-      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-edit-property.cjs\")"
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-edit-property.cjs\")",
+      "WebSearch",
+      "WebFetch(domain:better-auth.com)",
+      "WebFetch(domain:www.prisma.io)",
+      "Bash(npm view *)",
+      "WebFetch(domain:neon.com)",
+      "Bash(git check-ignore *)",
+      "Bash(wmic logicaldisk *)",
+      "Bash(npm config *)",
+      "Read(//c/Users/HP/.claude/skills/prisma-upgrade-v7/references/**)",
+      "Read(//c/Users/HP/.agents/skills/prisma-upgrade-v7/references/**)",
+      "WebFetch(domain:www.better-auth.com)",
+      "Bash(npx prisma *)",
+      "Bash(xargs grep -l \"defineConfig\")",
+      "Bash(xargs grep -ln \"emailAndPassword\\\\b\")",
+      "Bash(git -C . mv middleware.ts proxy.ts)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(awk -F'=' '{print $1, \\($2==\"\\\\\"\\\\\"\" || $2==\"\"\\) ? \"EMPTY\" : \"SET\"}')",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")"
     ]
   }
 }

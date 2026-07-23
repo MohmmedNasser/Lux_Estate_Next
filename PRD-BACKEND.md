@@ -86,7 +86,7 @@ enum PropertyStatus { ACTIVE SOLD RENTED }
 - Session strategy: database sessions, 7-day expiry
 - Mount the handler at `app/api/auth/[...all]/route.ts`
 - Create a typed client in `lib/auth-client.ts`
-- Add `middleware.ts` protecting: `/dashboard`, `/properties/add`, `/properties/[id]/edit` → redirect unauthenticated users to `/login?callbackUrl=...`
+- Add `proxy.ts` (Next.js 16 renamed the `middleware.ts` convention to `proxy.ts`; the exported function is `proxy`, not `middleware`) protecting: `/dashboard`, `/properties/add`, `/properties/[id]/edit` → redirect unauthenticated users to `/login?callbackUrl=...`. Uses `getSessionCookie` for a fast existence check only — real session validation happens via `getCurrentUser()`.
 - Create a `getCurrentUser()` server helper for use in Server Components and Server Actions
 
 ---
