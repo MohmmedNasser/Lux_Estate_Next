@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 
 import {
@@ -15,17 +15,62 @@ import { FilterChips } from "@/components/properties/FilterChips";
 import {
   FilterFieldGroups,
   useFilterFormState,
+  type FilterDraft,
 } from "@/components/properties/FilterSidebar";
-import { mockProperties } from "@/lib/mock-data";
-import { filterProperties } from "@/lib/property-filters";
+import { getProperties } from "@/lib/actions/property.actions";
 import type { PropertyFilters } from "@/types";
+
+const PREVIEW_DEBOUNCE_MS = 300;
+
+function draftToFilters(draft: FilterDraft): PropertyFilters {
+  return {
+    listingType: draft.listingType === "all" ? undefined : draft.listingType,
+    propertyType: draft.propertyType || undefined,
+    location: draft.location || undefined,
+    minPrice: draft.minPrice ? Number(draft.minPrice) : undefined,
+    maxPrice: draft.maxPrice ? Number(draft.maxPrice) : undefined,
+    bedrooms: draft.bedrooms ? Number(draft.bedrooms) : undefined,
+    bathrooms: draft.bathrooms ? Number(draft.bathrooms) : undefined,
+  };
+}
+
+function usePreviewCount(draft: FilterDraft, initialCount: number) {
+  const [count, setCount] = useState(initialCount);
+  const draftKey = JSON.stringify(draft);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const timeout = window.setTimeout(async () => {
+      try {
+        const result = await getProperties(draftToFilters(draft), 1, 1);
+        if (!cancelled) setCount(result.total);
+      } catch {
+        // Keep showing the last known count rather than an error inside the
+        // sheet footer — the user can still tap the button and see a proper
+        // error/empty state on the results page itself.
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, PREVIEW_DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
+  return count;
+}
 
 export function MobileFilterSheet({
   locations,
   initialFilters,
+  total,
 }: {
   locations: string[];
   initialFilters?: PropertyFilters;
+  total: number;
 }) {
   const [open, setOpen] = useState(false);
   const { draft, update, apply } = useFilterFormState(initialFilters);
@@ -40,17 +85,7 @@ export function MobileFilterSheet({
     initialFilters?.bathrooms,
   ].filter((value) => value !== undefined && value !== "").length;
 
-  const previewCount = useMemo(() => {
-    return filterProperties(mockProperties, {
-      listingType: draft.listingType === "all" ? undefined : draft.listingType,
-      propertyType: draft.propertyType || undefined,
-      location: draft.location || undefined,
-      minPrice: draft.minPrice ? Number(draft.minPrice) : undefined,
-      maxPrice: draft.maxPrice ? Number(draft.maxPrice) : undefined,
-      bedrooms: draft.bedrooms ? Number(draft.bedrooms) : undefined,
-      bathrooms: draft.bathrooms ? Number(draft.bathrooms) : undefined,
-    }).length;
-  }, [draft]);
+  const previewCount = usePreviewCount(draft, total);
 
   function handleApply() {
     apply();

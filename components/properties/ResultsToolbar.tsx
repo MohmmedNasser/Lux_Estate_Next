@@ -28,11 +28,13 @@ export function ResultsToolbar({
   locations,
   sortBy,
   view,
+  total,
 }: {
   filters: PropertyFilters;
   locations: string[];
   sortBy: string;
   view: "grid" | "list";
+  total: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -59,7 +61,11 @@ export function ResultsToolbar({
     <div className="mb-6 flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="flex min-w-0 items-center gap-3 overflow-x-auto lg:hidden">
-          <MobileFilterSheet locations={locations} initialFilters={filters} />
+          <MobileFilterSheet
+            locations={locations}
+            initialFilters={filters}
+            total={total}
+          />
           <QuickChip
             active={filters.listingType === "buy"}
             onClick={() => toggleQuickListingType("buy")}

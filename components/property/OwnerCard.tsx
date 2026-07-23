@@ -6,14 +6,14 @@ import { motion, useReducedMotion } from "framer-motion";
 import { BadgeCheck, Heart, Mail, Phone } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { formatPriceValue } from "@/lib/format";
+import { formatPriceValue, getInitials } from "@/lib/format";
 import { InquiryModal } from "@/components/property/InquiryModal";
 import type { Property } from "@/types";
 
 interface Owner {
   name: string;
-  avatar: string;
-  phone: string;
+  avatar?: string;
+  phone?: string;
   email: string;
 }
 
@@ -46,14 +46,18 @@ export function OwnerCard({ property, owner }: OwnerCardProps) {
       {/* Owner */}
       <div className="flex items-center gap-3">
         <div className="relative shrink-0">
-          <span className="relative block size-12 overflow-hidden rounded-full shadow-sm ring-2 ring-white">
-            <Image
-              src={owner.avatar}
-              alt={owner.name}
-              fill
-              sizes="48px"
-              className="object-cover"
-            />
+          <span className="relative grid size-12 place-items-center overflow-hidden rounded-full bg-amber-50 text-[15px] font-semibold text-amber-700 shadow-sm ring-2 ring-white">
+            {owner.avatar ? (
+              <Image
+                src={owner.avatar}
+                alt={owner.name}
+                fill
+                sizes="48px"
+                className="object-cover"
+              />
+            ) : (
+              getInitials(owner.name)
+            )}
           </span>
           <BadgeCheck
             className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-white text-amber-700"
@@ -70,13 +74,15 @@ export function OwnerCard({ property, owner }: OwnerCardProps) {
 
       {/* Contact rows */}
       <div className="mt-4 flex flex-col gap-2.5">
-        <a
-          href={`tel:${owner.phone}`}
-          className="inline-flex items-center gap-2.5 text-[14px] text-neutral-700 transition-colors hover:text-amber-800"
-        >
-          <Phone className="size-4 shrink-0 text-neutral-400" aria-hidden="true" />
-          {owner.phone}
-        </a>
+        {owner.phone && (
+          <a
+            href={`tel:${owner.phone}`}
+            className="inline-flex items-center gap-2.5 text-[14px] text-neutral-700 transition-colors hover:text-amber-800"
+          >
+            <Phone className="size-4 shrink-0 text-neutral-400" aria-hidden="true" />
+            {owner.phone}
+          </a>
+        )}
         <a
           href={`mailto:${owner.email}`}
           className="inline-flex items-center gap-2.5 text-[14px] text-neutral-700 transition-colors hover:text-amber-800"

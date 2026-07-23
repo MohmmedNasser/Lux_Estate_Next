@@ -5,11 +5,13 @@ import { Container } from "@/components/layout/Container";
 import { PropertiesHeader } from "@/components/properties/PropertiesHeader";
 import { FilterSidebar } from "@/components/properties/FilterSidebar";
 import { ResultsToolbar } from "@/components/properties/ResultsToolbar";
-import { PropertiesGrid } from "@/components/properties/PropertiesGrid";
-import { mockProperties } from "@/lib/mock-data";
+import {
+  PropertiesGrid,
+  PROPERTIES_PAGE_SIZE,
+} from "@/components/properties/PropertiesGrid";
+import { getProperties } from "@/lib/actions/property.actions";
 import { locations } from "@/lib/locations";
 import {
-  filterProperties,
   parsePropertyFilters,
   type RawSearchParams,
 } from "@/lib/property-filters";
@@ -27,12 +29,16 @@ export default async function PropertiesPage({
   const params = await searchParams;
   const filters = parsePropertyFilters(params);
   const view = params.view === "list" ? "list" : "grid";
-  const results = filterProperties(mockProperties, filters);
+  const { properties, total } = await getProperties(
+    filters,
+    1,
+    PROPERTIES_PAGE_SIZE,
+  );
   const filtersKey = JSON.stringify(filters);
 
   return (
     <Container className="pb-16 sm:pb-20 lg:pb-24">
-      <PropertiesHeader count={results.length} />
+      <PropertiesHeader count={total} />
 
       <Suspense fallback={null}>
         <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr] lg:gap-10">
@@ -49,10 +55,13 @@ export default async function PropertiesPage({
               locations={locations}
               sortBy={filters.sortBy ?? "newest"}
               view={view}
+              total={total}
             />
             <PropertiesGrid
-              key={results.map((property) => property.id).join(",")}
-              properties={results}
+              key={properties.map((property) => property.id).join(",")}
+              initialProperties={properties}
+              total={total}
+              filters={filters}
               view={view}
             />
           </div>

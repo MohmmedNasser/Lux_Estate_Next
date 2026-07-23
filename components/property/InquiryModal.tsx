@@ -12,6 +12,7 @@ import { CheckCircle2, Loader2, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { isValidEmail } from "@/lib/validation";
+import { createInquiry } from "@/lib/actions/inquiry.actions";
 
 interface InquiryModalProps {
   open: boolean;
@@ -54,6 +55,7 @@ export function InquiryModal({
   const [values, setValues] = useState<Values>(initialValues);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<Status>("idle");
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   function setField(field: keyof Values, value: string) {
     setValues((current) => ({ ...current, [field]: value }));
@@ -70,20 +72,26 @@ export function InquiryModal({
     return Object.keys(next).length === 0;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (status !== "idle") return;
     if (!validate()) return;
 
     setStatus("submitting");
-    timeoutRef.current = window.setTimeout(() => {
-      console.log("Inquiry submitted", {
+    setSubmitError(null);
+    try {
+      await createInquiry({
         propertyId,
-        ...values,
-        createdAt: new Date().toISOString(),
+        senderName: values.name,
+        senderEmail: values.email,
+        senderPhone: values.phone || undefined,
+        message: values.message,
       });
       setStatus("success");
-    }, 700);
+    } catch {
+      setSubmitError("Couldn't send your message. Please try again.");
+      setStatus("idle");
+    }
   }
 
   function handleClose() {
@@ -93,6 +101,7 @@ export function InquiryModal({
       setValues(initialValues);
       setErrors({});
       setStatus("idle");
+      setSubmitError(null);
     }, 250);
   }
 
@@ -221,6 +230,12 @@ export function InquiryModal({
                 <p className="mt-1 text-[13px] text-neutral-500">
                   Send a message about this listing.
                 </p>
+
+                {submitError && (
+                  <p className="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-[13px] text-rose-700 ring-1 ring-rose-200">
+                    {submitError}
+                  </p>
+                )}
 
                 <form onSubmit={handleSubmit} noValidate className="mt-5 flex flex-col gap-4">
                   <Field id="inq-name" label="Name" error={errors.name}>

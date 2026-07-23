@@ -141,7 +141,7 @@ Modern listing layout (Airbnb/fleet style). The title block sits **above** the g
    - **`AmenitiesGrid`** — 2-col grid; each amenity maps to a real lucide icon (Parking→Car, Garden→Trees, Balcony→Wind, A/C→Snowflake, …), never a generic check.
    - **`LocationMap`** — gridded map surface with a pinging amber pin + floating address card and an "Open in Maps" link. Never a "coming soon" box.
 4. **`OwnerCard`** (right column, `lg:sticky lg:top-24`; on mobile renders in-flow after the description):
-   - Price restated · owner (avatar + verified badge, name, role) · phone/email contact rows.
+   - Price restated · owner (avatar + verified badge, name, role) · phone/email contact rows. Owner avatar falls back to initials on an amber-50 circle when unset (real accounts have no avatar upload in Phase 2); the phone row only renders when the owner has one on file — `User.phone?` (PRD.md §6) is optional and unset by default, since Sign Up never collects it.
    - **One** primary CTA — "Request a Viewing" / "Request to Rent" — opens **`InquiryModal`** (the inquiry form is NOT open inline). Secondary "Save". Fine print.
 5. **`MobileActionBar`** (`< lg`) — `fixed` bottom bar: price + `bd · ba`, CTA opens the same modal. Page adds bottom padding so content clears it.
 6. **`InquiryModal`** — centered modal (desktop) / drag-dismiss bottom sheet (mobile). Fields: Name, Email, Phone (optional), Message (inputs `≥16px` on mobile to stop iOS zoom). Client validation, loading → success state, focus trap, Esc, focus restore.

@@ -55,7 +55,7 @@ export function Hero({
   featuredProperty,
 }: {
   locations: string[];
-  featuredProperty: Property;
+  featuredProperty?: Property;
 }) {
   const router = useRouter();
   const prefersReducedMotion = useReducedMotion();
@@ -370,12 +370,14 @@ export function Hero({
             </motion.p>
           </div>
 
-          <motion.div
-            variants={itemVariants}
-            className="absolute bottom-10 right-0 z-10 hidden lg:block"
-          >
-            <FeaturedPropertyCard property={featuredProperty} />
-          </motion.div>
+          {featuredProperty && (
+            <motion.div
+              variants={itemVariants}
+              className="absolute bottom-10 right-0 z-10 hidden lg:block"
+            >
+              <FeaturedPropertyCard property={featuredProperty} />
+            </motion.div>
+          )}
         </motion.div>
       </Container>
 

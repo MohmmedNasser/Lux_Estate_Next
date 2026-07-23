@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { Bath, BedDouble, Building2, Ruler } from "lucide-react";
 
-import { formatPriceValue, formatSize } from "@/lib/format";
+import { formatPriceValue, formatSize, getInitials } from "@/lib/format";
 import type { Property } from "@/types";
 
 interface PropertyOverviewProps {
   property: Property;
   ownerName: string;
-  ownerAvatar: string;
+  ownerAvatar?: string;
   typeLabel: string;
 }
 
@@ -74,14 +74,18 @@ export function PropertyOverview({
       </div>
 
       <div className="mt-3 flex items-center gap-2.5">
-        <span className="relative size-8 shrink-0 overflow-hidden rounded-full bg-neutral-100">
-          <Image
-            src={ownerAvatar}
-            alt=""
-            fill
-            sizes="32px"
-            className="object-cover"
-          />
+        <span className="relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-50 text-[11px] font-semibold text-amber-700">
+          {ownerAvatar ? (
+            <Image
+              src={ownerAvatar}
+              alt=""
+              fill
+              sizes="32px"
+              className="object-cover"
+            />
+          ) : (
+            getInitials(ownerName)
+          )}
         </span>
         <p className="text-[14px] text-neutral-600">
           Listed by <span className="font-medium text-neutral-900">{ownerName}</span>

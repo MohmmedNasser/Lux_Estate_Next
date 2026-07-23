@@ -10,7 +10,10 @@ import { LocationMap } from "@/components/property/LocationMap";
 import { OwnerCard } from "@/components/property/OwnerCard";
 import { MobileActionBar } from "@/components/property/MobileActionBar";
 import { SimilarProperties } from "@/components/property/SimilarProperties";
-import { mockOwners, mockProperties } from "@/lib/mock-data";
+import {
+  getPropertyById,
+  getSimilarProperties,
+} from "@/lib/actions/property.actions";
 import { formatPropertyType } from "@/lib/format";
 
 interface PageProps {
@@ -21,36 +24,27 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const property = mockProperties.find((p) => p.id === id);
+  const result = await getPropertyById(id);
 
-  if (!property) {
+  if (!result) {
     return { title: "Property Not Found | Lux Estate" };
   }
 
   return {
-    title: `${property.title} | Lux Estate`,
-    description: property.description,
+    title: `${result.property.title} | Lux Estate`,
+    description: result.property.description,
   };
 }
 
 export default async function PropertyDetailsPage({ params }: PageProps) {
   const { id } = await params;
-  const property = mockProperties.find((p) => p.id === id);
+  const result = await getPropertyById(id);
 
-  if (!property) notFound();
+  if (!result) notFound();
 
-  const owner = mockOwners[property.ownerId];
+  const { property, owner } = result;
   const typeLabel = formatPropertyType(property.propertyType);
-
-  const similarProperties = mockProperties
-    .filter((p) => p.id !== property.id)
-    .sort((a, b) => {
-      const score = (p: (typeof mockProperties)[number]) =>
-        (p.propertyType === property.propertyType ? 1 : 0) +
-        (p.listingType === property.listingType ? 1 : 0);
-      return score(b) - score(a);
-    })
-    .slice(0, 3);
+  const similarProperties = await getSimilarProperties(property.id);
 
   const sectionDivider = "border-b border-neutral-200 pb-8";
 

@@ -97,7 +97,22 @@
       "Bash(git -C . mv middleware.ts proxy.ts)",
       "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
       "Bash(awk -F'=' '{print $1, \\($2==\"\\\\\"\\\\\"\" || $2==\"\"\\) ? \"EMPTY\" : \"SET\"}')",
-      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")"
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")",
+      "Bash(curl -sf http://localhost:3000)",
+      "Bash(npx --no-install playwright --version)",
+      "Bash(npx --yes playwright install chromium --with-deps)",
+      "Bash(npx --yes playwright@1.61.1 --version)",
+      "Bash(node -e \"require.resolve\\('playwright'\\)\")",
+      "Bash(npm init *)",
+      "Bash(node check-home.mjs)",
+      "Bash(node scratch-check.mjs)",
+      "Bash(git -C \"C:\\\\Users\\\\HP\\\\Desktop\\\\Lux_Estate\" status --short)",
+      "Bash(node check-properties.mjs)",
+      "Bash(node check-mobile-sheet.mjs)",
+      "Bash(npx --no-install tsx --version)",
+      "Bash(npx --yes tsx scratch-seed.ts)",
+      "Bash(node check-property-details.mjs cmrxjxwlv0001io52h1266fft)",
+      "Bash(npx --yes tsx scratch-cleanup.ts cmrxjxwlv0001io52h1266fft cmrxjxvxe0000io524bds76tj)"
     ]
   }
 }

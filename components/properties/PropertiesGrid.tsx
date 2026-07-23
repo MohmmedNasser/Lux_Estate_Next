@@ -6,24 +6,30 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Loader2, SearchX } from "lucide-react";
 
 import { fadeUp, stagger, viewportOnce } from "@/lib/motion";
+import { getProperties } from "@/lib/actions/property.actions";
 import { FeaturedPropertyCard } from "@/components/property/FeaturedPropertyCard";
 import { PropertyCardHorizontal } from "@/components/property/PropertyCardHorizontal";
 import { PropertyCardSkeleton } from "@/components/property/PropertyCardSkeleton";
-import type { Property } from "@/types";
+import type { Property, PropertyFilters } from "@/types";
 
-const PAGE_SIZE = 9;
-const LOAD_DELAY = 500;
+export const PROPERTIES_PAGE_SIZE = 9;
 
 export function PropertiesGrid({
-  properties,
+  initialProperties,
+  total,
+  filters,
   view,
 }: {
-  properties: Property[];
+  initialProperties: Property[];
+  total: number;
+  filters: PropertyFilters;
   view: "grid" | "list";
 }) {
   const reduce = useReducedMotion();
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [properties, setProperties] = useState(initialProperties);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (properties.length === 0) {
     return (
@@ -53,17 +59,23 @@ export function PropertiesGrid({
     );
   }
 
-  const visible = properties.slice(0, visibleCount);
-  const initialBatch = visible.slice(0, PAGE_SIZE);
-  const extraBatch = visible.slice(PAGE_SIZE);
-  const hasMore = visibleCount < properties.length;
+  const initialBatch = properties.slice(0, PROPERTIES_PAGE_SIZE);
+  const extraBatch = properties.slice(PROPERTIES_PAGE_SIZE);
+  const hasMore = properties.length < total;
 
-  function handleLoadMore() {
+  async function handleLoadMore() {
     setLoading(true);
-    window.setTimeout(() => {
-      setVisibleCount((count) => count + PAGE_SIZE);
+    setError(null);
+    const nextPage = page + 1;
+    try {
+      const result = await getProperties(filters, nextPage, PROPERTIES_PAGE_SIZE);
+      setProperties((current) => [...current, ...result.properties]);
+      setPage(nextPage);
+    } catch {
+      setError("Couldn't load more properties. Please try again.");
+    } finally {
       setLoading(false);
-    }, LOAD_DELAY);
+    }
   }
 
   const CardComponent =
@@ -119,7 +131,7 @@ export function PropertiesGrid({
       {loading && view === "grid" && (
         <div className={gridClass}>
           {Array.from({
-            length: Math.min(PAGE_SIZE, properties.length - visibleCount),
+            length: Math.min(PROPERTIES_PAGE_SIZE, total - properties.length),
           }).map((_, i) => (
             <PropertyCardSkeleton key={i} />
           ))}
@@ -142,8 +154,13 @@ export function PropertiesGrid({
             )}
           </button>
           <p className="text-[13px] text-neutral-500">
-            Showing {visible.length} of {properties.length} properties
+            Showing {properties.length} of {total} properties
           </p>
+          {error && (
+            <p role="alert" className="text-[13px] text-rose-600">
+              {error}
+            </p>
+          )}
         </div>
       )}
     </div>

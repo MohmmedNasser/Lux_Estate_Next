@@ -1,10 +1,11 @@
 import type {
+  Inquiry as PrismaInquiry,
   ListingType as PrismaListingType,
   Property as PrismaProperty,
   PropertyType as PrismaPropertyType,
   User as PrismaUser,
 } from "@/generated/prisma/client";
-import type { ListingType, Property, PropertyType, User } from "@/types";
+import type { Inquiry, ListingType, Property, PropertyType, User } from "@/types";
 
 const listingTypeToPrisma: Record<ListingType, PrismaListingType> = {
   buy: "BUY",
@@ -80,6 +81,19 @@ export function toUserDto(user: PrismaUser): User {
     name: user.name,
     email: user.email,
     avatar: user.image ?? undefined,
+    phone: user.phone ?? undefined,
     createdAt: user.createdAt.toISOString(),
+  };
+}
+
+export function toInquiryDto(inquiry: PrismaInquiry): Inquiry {
+  return {
+    id: inquiry.id,
+    propertyId: inquiry.propertyId,
+    senderName: inquiry.senderName,
+    senderEmail: inquiry.senderEmail,
+    senderPhone: inquiry.senderPhone ?? undefined,
+    message: inquiry.message,
+    createdAt: inquiry.createdAt.toISOString(),
   };
 }
