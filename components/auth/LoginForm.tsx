@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Check, Loader2, Mail } from "lucide-react";
 
-import { isValidEmail } from "@/lib/validation";
+import { signIn } from "@/lib/auth-client";
+import { signInSchema } from "@/lib/validations/authSchemas";
 import {
   FormField,
   PasswordInput,
@@ -24,6 +26,7 @@ const initialValues: Values = { email: "", password: "", rememberMe: false };
 
 export function LoginForm() {
   const reduce = useReducedMotion();
+  const router = useRouter();
   const [values, setValues] = useState<Values>(initialValues);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
@@ -35,25 +38,48 @@ export function LoginForm() {
   }
 
   function validate(): boolean {
+    const result = signInSchema.safeParse(values);
+    if (result.success) {
+      setErrors({});
+      return true;
+    }
     const next: Errors = {};
-    if (!values.email.trim()) next.email = "Enter your email.";
-    else if (!isValidEmail(values.email))
-      next.email = "Enter a valid email address.";
-    if (!values.password) next.password = "Enter your password.";
+    for (const issue of result.error.issues) {
+      const key = issue.path[0] as keyof Errors;
+      if (key && !next[key]) next[key] = issue.message;
+    }
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return false;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === "submitting") return;
     setAuthError(null);
     if (!validate()) return;
 
     setStatus("submitting");
-    window.setTimeout(() => {
-      console.log("Login submitted", values);
-      setStatus("success");
-    }, 700);
+    const { error } = await signIn.email({
+      email: values.email,
+      password: values.password,
+      rememberMe: values.rememberMe,
+    });
+
+    if (error) {
+      setAuthError(error.message ?? "Invalid email or password.");
+      setStatus("idle");
+      return;
+    }
+
+    setStatus("success");
+    const params = new URLSearchParams(window.location.search);
+    const callbackUrl = params.get("callbackUrl");
+    router.push(
+      callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")
+        ? callbackUrl
+        : "/dashboard",
+    );
+    router.refresh();
   }
 
   return (
@@ -159,7 +185,7 @@ export function LoginForm() {
             role="status"
             className="text-center text-[13px] font-medium text-amber-700"
           >
-            Logged in (demo only).
+            Logged in — redirecting…
           </p>
         )}
       </form>

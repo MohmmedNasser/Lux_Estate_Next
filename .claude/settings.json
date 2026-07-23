@@ -112,7 +112,16 @@
       "Bash(npx --no-install tsx --version)",
       "Bash(npx --yes tsx scratch-seed.ts)",
       "Bash(node check-property-details.mjs cmrxjxwlv0001io52h1266fft)",
-      "Bash(npx --yes tsx scratch-cleanup.ts cmrxjxwlv0001io52h1266fft cmrxjxvxe0000io524bds76tj)"
+      "Bash(npx --yes tsx scratch-cleanup.ts cmrxjxwlv0001io52h1266fft cmrxjxvxe0000io524bds76tj)",
+      "Bash(xargs grep -l \"signInEmail\\\\|sign-in/email\")",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/login)",
+      "Bash(npx --yes tsx check-auth.mjs)",
+      "Bash(npx --yes tsx -r dotenv/config scratch-cleanup-auth.ts)",
+      "Bash(echo \"TSC_EXIT:$?\")",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/)",
+      "Bash(npx --yes tsx check-header.mjs)"
     ]
   }
 }

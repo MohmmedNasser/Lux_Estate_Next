@@ -13,6 +13,7 @@ import {
 import { Menu, Plus, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useSession } from "@/lib/auth-client";
 
 export interface NavItem {
   href: string;
@@ -32,6 +33,7 @@ export function MobileNav({ items, isActive, triggerClassName }: MobileNavProps)
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -229,10 +231,10 @@ export function MobileNav({ items, isActive, triggerClassName }: MobileNavProps)
               className="mt-auto flex flex-col gap-3 border-t border-neutral-200 px-6 pt-6 pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             >
               <Link
-                href="/login"
-                className="rounded-lg px-1 py-2 text-[15px] font-medium text-neutral-700 transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                href={session ? "/dashboard" : "/login"}
+                className="truncate rounded-lg px-1 py-2 text-[15px] font-medium text-neutral-700 transition-colors hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               >
-                Login
+                {session ? session.user.name : "Login"}
               </Link>
               <Link
                 href="/properties/add"

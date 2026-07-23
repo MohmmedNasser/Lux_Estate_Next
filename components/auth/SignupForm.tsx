@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Loader2, Mail, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { isValidEmail } from "@/lib/validation";
+import { signUp } from "@/lib/auth-client";
+import { signUpSchema } from "@/lib/validations/authSchemas";
 import {
   FormField,
   PasswordInput,
@@ -46,11 +48,10 @@ const strengthColors = ["bg-rose-500", "bg-amber-500", "bg-emerald-500"];
 
 export function SignupForm() {
   const reduce = useReducedMotion();
+  const router = useRouter();
   const [values, setValues] = useState<Values>(initialValues);
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "submitting" | "success">("idle");
-  // Phase 1 has no real auth backend, so sign-up always succeeds — this
-  // stays wired up (state + banner markup) for when a real API can fail it.
   const [authError, setAuthError] = useState<string | null>(null);
 
   const strength = passwordStrength(values.password);
@@ -61,30 +62,42 @@ export function SignupForm() {
   }
 
   function validate(): boolean {
+    const result = signUpSchema.safeParse(values);
+    if (result.success) {
+      setErrors({});
+      return true;
+    }
     const next: Errors = {};
-    if (!values.name.trim()) next.name = "Enter your full name.";
-    if (!values.email.trim()) next.email = "Enter your email.";
-    else if (!isValidEmail(values.email))
-      next.email = "Enter a valid email address.";
-    if (!values.password) next.password = "Enter a password.";
-    else if (values.password.length < 8)
-      next.password = "Password must be at least 8 characters.";
-    if (values.confirmPassword !== values.password)
-      next.confirmPassword = "Passwords do not match.";
+    for (const issue of result.error.issues) {
+      const key = issue.path[0] as keyof Errors;
+      if (key && !next[key]) next[key] = issue.message;
+    }
     setErrors(next);
-    return Object.keys(next).length === 0;
+    return false;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === "submitting") return;
     setAuthError(null);
     if (!validate()) return;
 
     setStatus("submitting");
-    window.setTimeout(() => {
-      console.log("Sign up submitted", values);
-      setStatus("success");
-    }, 700);
+    const { error } = await signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    });
+
+    if (error) {
+      setAuthError(error.message ?? "Couldn't create your account. Please try again.");
+      setStatus("idle");
+      return;
+    }
+
+    setStatus("success");
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -214,7 +227,7 @@ export function SignupForm() {
             role="status"
             className="text-center text-[13px] font-medium text-amber-700"
           >
-            Account created (demo only).
+            Account created — redirecting…
           </p>
         )}
       </form>

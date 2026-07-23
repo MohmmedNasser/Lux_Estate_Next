@@ -73,7 +73,7 @@ types/
 ## 3. Shared Components
 
 ### `SiteHeader` (+ `NavLink`, `MobileNav`)
-`fixed` top bar, `h-16 lg:h-[72px]`. Logo with amber mark (left) · nav centered on `lg+` (right) · Login + "Add Property" pill CTA.
+`fixed` top bar, `h-16 lg:h-[72px]`. Logo with amber mark (left) · nav centered on `lg+` (right) · auth slot + "Add Property" pill CTA. Auth slot reads `useSession()` (Better Auth, client-side): signed out shows "Login" → `/login`; signed in shows the user's name (truncated) → `/dashboard`, in both the desktop bar and the mobile overlay panel; a brief `animate-pulse` placeholder covers the desktop slot while the session is loading.
 **Two states driven by one boolean** (`useScrollState`, hysteresis 24/12px): State A = transparent over the dark home hero (light text + scrim); State B = solid `bg-white/85` blur bar. Background AND text color both derive from that single value so they can never desync into invisible text. Non-hero pages mount solid immediately (`variant` prop, auto-solid off the homepage). Active `NavLink` shows a sliding `layoutId` underline. Mobile: hamburger → full-screen overlay panel (`MobileNav`) with focus trap, Esc, scroll-lock, route-change close.
 
 ### `Footer`

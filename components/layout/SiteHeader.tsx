@@ -7,6 +7,7 @@ import { Building2, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useScrollState } from "@/hooks/useScrollState";
+import { useSession } from "@/lib/auth-client";
 import { NavLink } from "@/components/layout/NavLink";
 import { MobileNav, type NavItem } from "@/components/layout/MobileNav";
 import { Container } from "@/components/layout/Container";
@@ -36,6 +37,7 @@ export function SiteHeader({ variant }: SiteHeaderProps) {
   const pathname = usePathname();
   const scrolled = useScrollState();
   const reduceMotion = useReducedMotion();
+  const { data: session, isPending: sessionPending } = useSession();
 
   const effectiveVariant = variant ?? (pathname === "/" ? "overlay" : "solid");
 
@@ -139,17 +141,36 @@ export function SiteHeader({ variant }: SiteHeaderProps) {
 
           {/* Right — actions */}
           <div className="flex shrink-0 items-center gap-2 lg:gap-3">
-            <Link
-              href="/login"
-              className={cn(
-                "hidden items-center rounded-md px-3 py-2 text-[14.5px] font-medium transition-colors duration-200 lg:inline-flex",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2",
-                t.login,
-                t.ringOffset,
-              )}
-            >
-              Login
-            </Link>
+            {sessionPending ? (
+              <div
+                aria-hidden="true"
+                className="hidden h-9 w-20 animate-pulse rounded-md bg-current/10 lg:block"
+              />
+            ) : session ? (
+              <Link
+                href="/dashboard"
+                className={cn(
+                  "hidden max-w-[160px] items-center truncate rounded-md px-3 py-2 text-[14.5px] font-medium transition-colors duration-200 lg:inline-flex",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2",
+                  t.login,
+                  t.ringOffset,
+                )}
+              >
+                {session.user.name}
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={cn(
+                  "hidden items-center rounded-md px-3 py-2 text-[14.5px] font-medium transition-colors duration-200 lg:inline-flex",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2",
+                  t.login,
+                  t.ringOffset,
+                )}
+              >
+                Login
+              </Link>
+            )}
 
             {/* CTA: full pill on lg+, icon-only on sm–lg, hidden < sm. */}
             <motion.div className="hidden sm:inline-flex" {...ctaMotion}>
