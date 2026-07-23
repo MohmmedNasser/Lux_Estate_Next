@@ -43,7 +43,10 @@ export function parsePropertyFilters(
     bedrooms: bedrooms ? Number(bedrooms) : undefined,
     bathrooms: bathrooms ? Number(bathrooms) : undefined,
     sortBy:
-      sortBy === "price-asc" || sortBy === "price-desc" || sortBy === "newest"
+      sortBy === "price-asc" ||
+      sortBy === "price-desc" ||
+      sortBy === "beds-desc" ||
+      sortBy === "newest"
         ? sortBy
         : "newest",
   };
@@ -87,6 +90,9 @@ export function filterProperties(
       break;
     case "price-desc":
       sorted.sort((a, b) => b.price - a.price);
+      break;
+    case "beds-desc":
+      sorted.sort((a, b) => b.bedrooms - a.bedrooms);
       break;
     case "newest":
     default:

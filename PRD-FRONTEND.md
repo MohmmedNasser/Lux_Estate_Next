@@ -40,9 +40,15 @@ app/
 components/
 ├── layout/        # SiteHeader, NavLink, MobileNav, Footer, Container
 ├── home/          # Hero, FeaturedProperties, HowItWorks, CtaBanner, FeaturedPropertyCard (hero overlay card only)
-├── property/      # FeaturedPropertyCard (canonical listing card), grid, filters, gallery + full property-detail set (see §3)
-├── forms/         # PropertyForm, ContactForm, AuthForm
-└── ui/            # shadcn/ui primitives (Base UI): button, sheet, native-select, form-field, alert-dialog
+├── about/         # AboutHero, WhyWeStarted, ValuesGrid, TeamGrid
+├── property/      # FeaturedPropertyCard (canonical grid card) + PropertyCardHorizontal (list-view sibling), gallery + full property-detail set (see §3)
+├── properties/    # /properties page shell: PropertiesHeader, FilterSidebar, MobileFilterSheet, FilterChips, ResultsToolbar, PropertiesGrid (see §3)
+├── auth/          # LoginForm, SignupForm (both render inside ui/AuthShell)
+├── contact/       # ContactForm, ContactInfo
+├── dashboard/     # ProfileHeader, StatCard (+ StatsGrid), ListingCard, DashboardListings
+├── property-form/ # Add/Edit Property guided-flow pieces: Stepper, SectionCard, ListingTypeControl, NumberStepperInput, AmenityChips, ImageDropzone, FormActionBar
+├── forms/         # PropertyForm — the single form shared by Add and Edit Property (mode prop)
+└── ui/            # shadcn/ui primitives (Base UI): button, sheet, select, native-select, form-field, alert-dialog, AuthShell, ConfirmDialog
 
 hooks/
 └── useScrollState.ts   # header scrolled state (single source of truth, hysteresis)
@@ -77,12 +83,16 @@ Four columns: brand + short description, quick links, contact info, social icons
 Image with a **For Sale** / **For Rent** badge overlay · price (large, bold, over a gradient scrim) · title · location with a pin icon · a row of beds / baths / size icons · a Save (heart) toggle.
 Hover (hover-capable devices only): slight lift and image zoom. Entire card links to `/properties/[id]`. `components/property/FeaturedPropertyCard` is the single, canonical listing card — reused for featured, grid, and "Similar properties"; there is no separate fork. (`components/home/FeaturedPropertyCard` is a distinct, smaller card used only as the hero image overlay.)
 
-### `FilterBar`
-Fields: Buy/Rent toggle · Location (select) · Property Type (select) · Price Range (min/max) · Bedrooms · Bathrooms · Search button.
-Horizontal layout on the home page hero; vertical sidebar layout on the properties page. Same component, controlled by a `variant` prop.
+### `PropertyCardHorizontal`
+The list-view sibling of `FeaturedPropertyCard` — same badge, favorite-heart, price, and meta-row tokens, laid out `flex-row` (image left, content right) instead of stacked; `flex-col` below `sm` so a fixed-width image never breaks a narrow screen. Both cards omit the bedrooms stat entirely when a listing has 0 bedrooms (commercial listings) rather than rendering a bare "0 beds".
 
-### `PropertyGrid`
-Responsive grid of `FeaturedPropertyCard`: 1 column mobile, 2 tablet, 3 desktop. Handles empty state and loading skeletons.
+### `/properties` filter system
+Filters are still URL state (`lib/property-filters.ts`), not a client store. The page composes:
+- **`FilterSidebar`** (desktop, `lg:sticky`) — batched draft state (Looking To segmented control, Location/Property Type `Select`, Price Range, Bedrooms/Bathrooms pill groups) committed via a single "Show Results" button; a header row shows "Clear all" once any filter is **applied** (URL-derived, independent of the draft).
+- **`MobileFilterSheet`** (`< lg`) — the same field groups inside a bottom sheet (reusing `components/ui/sheet.tsx`, `side="bottom"`, Base UI's built-in focus trap/Esc/scroll-lock); its submit button shows a **live** "Show N results" count computed from the in-progress draft.
+- **`FilterChips`** — pills for every currently-applied filter (not the draft), each removable independently; appears in both the sidebar/sheet header and as a standalone strip under the toolbar on `< lg`.
+- **`ResultsToolbar`** — sort `Select` (Newest / Price asc / Price desc / Most Beds) and a segmented grid/list view toggle (both instant-apply, animated with a shared `layoutId` pill), plus quick Buy/Rent chips and the `MobileFilterSheet` trigger on `< lg`.
+- **`PropertiesGrid`** — renders `FeaturedPropertyCard` (grid) or `PropertyCardHorizontal` (list), the empty state, and "Load More" (client-side reveal over the already-filtered array, since Phase 1 has no pagination API — new batches animate in on their own, the initial batch keeps its `whileInView` reveal). Grid columns: 1 → `sm:` 2 → `xl:` 3 (deliberately not `lg:` 3 — the 280px sidebar makes 3 columns cramped between `lg` and `xl`).
 
 ### Property-detail components
 The `/properties/[id]` page is composed from dedicated components (see §4.3):
@@ -95,8 +105,8 @@ The `/properties/[id]` page is composed from dedicated components (see §4.3):
 ### 4.1 Home — `/`
 
 1. **Header**
-2. **Hero** — full-width background image, overlay, headline + subheadline, `FilterBar` (horizontal variant) floating over the image
-3. **Featured Properties** — section title + `PropertyGrid` with 6 mock properties + "View All Properties" button
+2. **Hero** — full-width background image, overlay, headline + subheadline, an inline search bar (own local state, not the `/properties` filter components) floating over the image; desktop inline fields, mobile `Sheet`
+3. **Featured Properties** — section title + a `stagger`/`fadeUp` grid of `FeaturedPropertyCard` with 6 mock properties + "View All Properties" button
 4. **How It Works** — 3 steps with icons: Browse Properties → Contact the Owner → Move In
 5. **CTA Banner** — "Have a property to list?" + "Add Your Property" button
 6. **Footer**
@@ -105,14 +115,13 @@ The `/properties/[id]` page is composed from dedicated components (see §4.3):
 
 ### 4.2 All Properties — `/properties`
 
-- Page title + result count ("24 properties found")
-- **Left sidebar:** `FilterBar` (vertical variant), sticky on desktop, collapsible drawer on mobile
-- **Top bar:** sort dropdown (Newest, Price: Low to High, Price: High to Low) + Grid/List view toggle
-- **Main area:** `PropertyGrid` (grid view) or stacked horizontal cards (list view)
-- Pagination or "Load More" button
-- Empty state when no properties match the filters
+1. **`PropertiesHeader`** — breadcrumb (Home / Properties), page title, and a live (`aria-live`) result count ("14 properties found").
+2. **`FilterSidebar`** (`lg:sticky`, hidden below `lg`) — batched draft filters (Looking To segmented control, Location/Property Type, Price Range, Bedrooms/Bathrooms pills) committed with one "Show Results" button; "Clear all" + `FilterChips` appear once a filter is actually applied (URL state), independent of the in-progress draft.
+3. **`MobileFilterSheet`** (`< lg`) — the same field groups in a bottom sheet, trigger button lives in `ResultsToolbar`; its submit button shows a live "Show N results" count.
+4. **`ResultsToolbar`** — sort (Newest / Price: Low to High / Price: High to Low / Most Beds) + a grid/list view toggle (segmented, `layoutId` slide), quick Buy/Rent chips and the mobile filter trigger on `< lg`, and a `FilterChips` strip below `lg` so active filters stay visible without opening the sheet.
+5. **`PropertiesGrid`** — `FeaturedPropertyCard` grid or `PropertyCardHorizontal` list, "Load More" (client-side reveal, `PropertyCardSkeleton` while the next batch "loads"), and the empty state ("No properties match your filters" + "Clear all filters").
 
-Filters update the URL query string (e.g. `/properties?listingType=rent&bedrooms=2`).
+Filters update the URL query string (e.g. `/properties?listingType=rent&bedrooms=2`); `lib/property-filters.ts` remains the only place that parses and applies them.
 
 ---
 
@@ -142,43 +151,47 @@ Modern listing layout (Airbnb/fleet style). The title block sits **above** the g
 
 ### 4.4 Login — `/login` and Sign Up — `/signup`
 
-- Centered card on a plain background, max width ~420px
-- Logo at the top
-- **Login:** email, password, "Remember me", "Forgot password?" link, Login button
-- **Sign Up:** name, email, password, confirm password, Sign Up button
+Both share **`components/ui/AuthShell`** — centered card (`max-w-[420px]`) over a faint amber radial glow, logo mark above the card, `scaleIn` entrance. `components/auth/LoginForm` and `components/auth/SignupForm` render inside it.
+
+- **Login:** email, password (eye toggle), "Remember me" (custom checkbox), "Forgot password?" link, Login button (loading spinner state)
+- **Sign Up:** full name, email, password (eye toggle) with a 3-segment strength meter + hint, confirm password, Sign Up button
+- Both wire up an inline error banner above the form (`AnimatePresence` fade+height) for a failed-auth state; Phase 1 has no real auth backend so it never actually fires, but the component is ready for one
 - Link at the bottom to switch between the two pages
-- Client-side validation with inline error messages
-- No auth logic in Phase 1 — the submit button just logs to the console
+- Client-side validation with inline error messages via the shared `FormField`
+- No auth logic in Phase 1 — the submit button just logs to the console and shows a demo success line
 
 ---
 
 ### 4.5 Add Property — `/properties/add`
 
-Multi-section form on one page:
+A guided flow built from `components/forms/PropertyForm` + `components/property-form/*`, not a flat stack of equal-weight cards:
 
-1. **Basic Info** — title, description (textarea), property type (select), Buy/Rent toggle
-2. **Pricing & Location** — price, currency, location (select), address
-3. **Details** — bedrooms, bathrooms, size (m²)
-4. **Amenities** — checkbox grid (parking, elevator, garden, pool, balcony, furnished, air conditioning, security)
-5. **Images** — drag-and-drop upload area with a preview thumbnail grid (UI only)
-6. Cancel and "Publish Listing" buttons
+- **`Stepper`** — sticky below the header (`top-16 lg:top-[72px]`), tracks the active section via `IntersectionObserver` (not scroll-position math). Desktop: 5 labeled dots + connecting line, completed steps get a check. `< sm`: collapses to "Step N of 5 — [label]" + a slim fill bar.
+- **`SectionCard`** — each of the 5 sections gets a numbered badge (amber-50/amber-700) + title, `fadeUp` on `whileInView`, and a `scroll-mt-32` target `id` the stepper and validation both scroll to.
+  1. **Basic Info** — title, description (`FormField` textarea), property type (styled `Select` Listbox), listing type (`ListingTypeControl`, sliding `layoutId` pill)
+  2. **Pricing & Location** — price + a compact currency `Select`, location `Select`, address (optional badge next to the label)
+  3. **Details** — bedrooms/bathrooms/size via `NumberStepperInput` (+/− buttons either side of the value, not bare number inputs)
+  4. **Amenities** — `AmenityChips`: tappable pill toggles with a check icon that fades in, not checkbox-in-a-box
+  5. **Images** — `ImageDropzone`: idle/drag-over/error states, shrinks to a compact "Add more" strip once photos exist, thumbnail grid with a hover/tap remove button
+- **`FormActionBar`** — sticky footer (not buttons floating at the end of a long page): required-fields hint on the left, Cancel + Publish (loading spinner state) on the right; in edit mode the left slot becomes a "Delete Listing" trigger instead.
+- **Validation** — inline per-field errors via `FormField`; submitting with an earlier incomplete section scrolls to and briefly rings that `SectionCard` (`ring-2 ring-rose-400`, fades via `transition-shadow`) instead of only flagging the field at the very bottom.
 
-Full client-side validation. On submit in Phase 1, log the form data to the console.
+On submit in Phase 1, log the form data to the console and show a success panel with a link to the dashboard.
 
 ---
 
 ### 4.6 Edit Property — `/properties/[id]/edit`
 
-Same form as Add Property, pre-filled with mock data. Button label: "Save Changes". Includes a "Delete Listing" button with a confirmation dialog.
+The exact same `PropertyForm` as Add Property (same component, `mode="edit"`), pre-filled with mock data. Button label: "Save Changes". "Delete Listing" lives in the sticky `FormActionBar`'s left slot and opens `components/ui/ConfirmDialog` (`role="alertdialog"`, focus trap, Esc) before anything is removed.
 
 ---
 
 ### 4.7 Dashboard — `/dashboard`
 
-- **Profile section:** avatar, name, email, "Edit Profile" button
-- **Stats row:** total listings, for sale, for rent
-- **My Listings:** grid of `PropertyCard` with an Edit and Delete button on each card
-- Empty state: "You have no listings yet" + "Add Your First Property" button
+- **`ProfileHeader`** — avatar, name, email, "Member since" date, "Edit Profile" button; stacks (avatar+name above, full-width button below) on `< sm`.
+- **`StatCard`** (via `StatsGrid`, `stagger(0.08)` on mount) — total listings, for sale, for rent, each with a dark icon badge (`bg-neutral-900 text-amber-400`), matching the About page's Values-grid treatment rather than a pastel circle.
+- **My Listings:** `DashboardListings` renders a grid of `components/dashboard/ListingCard` — shares `FeaturedPropertyCard`'s visual DNA (badge, price overlay, meta row) but swaps the favorite heart for an Edit/Delete button pair; Delete opens `ConfirmDialog` rather than removing on the first click. When bedrooms and bathrooms are both 0 (land/commercial), the meta row shows the property type instead of "0 beds · 0 baths".
+- Empty state: "You haven't listed anything yet" + "Add Property" button, same visual pattern as the Properties page empty state.
 
 ---
 
@@ -193,8 +206,9 @@ Same form as Add Property, pre-filled with mock data. Button label: "Save Change
 
 ### 4.9 Contact — `/contact`
 
-- Page title and short intro
-- Two columns: contact form (name, email, subject, message) on the left; contact info (address, phone, email, working hours) + map placeholder on the right
+- Page header matches the Properties page pattern (H1 + subtext, `border-b`)
+- Two columns (`components/contact/ContactForm` + `components/contact/ContactInfo`; info column moves below the form on `< lg`): form card (name, email, subject, message, success state via `AnimatePresence` crossfade — not a toast) on the left; contact detail rows with the same dark-icon-badge treatment as the About page's Values grid, plus the real `LocationMap` component (reused from the property-detail page — never a "coming soon" placeholder) on the right
+- Both columns `fadeUp` on mount (above the fold), info column delayed 0.1s after the form
 
 ---
 
@@ -222,7 +236,7 @@ Build in this sequence, reviewing each step before continuing:
 
 1. Phase 0 setup + `types/index.ts` + `lib/mock-data.ts`
 2. `Header` and `Footer` + root layout
-3. `FeaturedPropertyCard`, `PropertyGrid`, `FilterBar`
+3. `FeaturedPropertyCard`, `PropertiesGrid`, `FilterSidebar`
 4. Home page
 5. All Properties page
 6. Property Details page

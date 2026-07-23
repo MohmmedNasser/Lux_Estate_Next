@@ -53,5 +53,5 @@ export interface PropertyFilters {
   maxPrice?: number;
   bedrooms?: number;
   bathrooms?: number;
-  sortBy?: "newest" | "price-asc" | "price-desc";
+  sortBy?: "newest" | "price-asc" | "price-desc" | "beds-desc";
 }

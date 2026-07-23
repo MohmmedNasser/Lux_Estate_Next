@@ -53,7 +53,7 @@ Purely internal edits that change nothing a PRD asserts (a refactor behind stabl
 **App Router, Server Components by default.** Pages under [app/](app/) are async Server Components that read `mock-data`, compute, and pass plain data down. Add `"use client"` only where interactivity requires it (forms, filter state, drawers, motion).
 
 **URL is the filter state — no global store.** The filtering flow is the central pattern to understand:
-- [components/property/FilterBar.tsx](components/property/FilterBar.tsx) (client) holds local input state and on submit `router.push`es a query string.
+- [components/properties/FilterSidebar.tsx](components/properties/FilterSidebar.tsx) (desktop) and [components/properties/MobileFilterSheet.tsx](components/properties/MobileFilterSheet.tsx) (`< lg`) each hold local **draft** input state, committed on submit via `router.push`. [components/properties/FilterChips.tsx](components/properties/FilterChips.tsx) and [components/properties/ResultsToolbar.tsx](components/properties/ResultsToolbar.tsx)'s sort/view controls read/write the URL directly (instant-apply, no draft step).
 - [app/properties/page.tsx](app/properties/page.tsx) (server) awaits `searchParams`, then [lib/property-filters.ts](lib/property-filters.ts) `parsePropertyFilters` → `filterProperties` produces the sorted result set server-side.
 - New filters/sorts go through `lib/property-filters.ts`, not ad-hoc filtering in components.
 
@@ -72,4 +72,4 @@ Purely internal edits that change nothing a PRD asserts (a refactor behind stabl
 
 ## Working style (from PRD §9)
 
-Build **one page/feature at a time**; reuse shared components (`FeaturedPropertyCard`, `PropertyGrid`, `FilterBar`) instead of duplicating markup; keep components small and fully typed.
+Build **one page/feature at a time**; reuse shared components (`FeaturedPropertyCard`, `PropertiesGrid`, `FilterSidebar`) instead of duplicating markup; keep components small and fully typed.

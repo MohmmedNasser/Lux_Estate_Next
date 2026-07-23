@@ -2,10 +2,10 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import { Container } from "@/components/layout/Container";
-import { FilterBar } from "@/components/property/FilterBar";
-import { MobileFilterDrawer } from "@/components/property/MobileFilterDrawer";
-import { PropertiesToolbar } from "@/components/property/PropertiesToolbar";
-import { PropertyResults } from "@/components/property/PropertyResults";
+import { PropertiesHeader } from "@/components/properties/PropertiesHeader";
+import { FilterSidebar } from "@/components/properties/FilterSidebar";
+import { ResultsToolbar } from "@/components/properties/ResultsToolbar";
+import { PropertiesGrid } from "@/components/properties/PropertiesGrid";
 import { mockProperties } from "@/lib/mock-data";
 import { locations } from "@/lib/locations";
 import {
@@ -28,47 +28,36 @@ export default async function PropertiesPage({
   const filters = parsePropertyFilters(params);
   const view = params.view === "list" ? "list" : "grid";
   const results = filterProperties(mockProperties, filters);
+  const filtersKey = JSON.stringify(filters);
 
   return (
-    <Container className="py-10 sm:py-14">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          All Properties
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {results.length} {results.length === 1 ? "property" : "properties"}{" "}
-          found
-        </p>
-      </div>
+    <Container className="pb-16 sm:pb-20 lg:pb-24">
+      <PropertiesHeader count={results.length} />
 
-      <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start">
-        <aside className="flex flex-col gap-4 lg:w-72 lg:shrink-0">
-          <MobileFilterDrawer locations={locations} initialFilters={filters} />
-          <div className="hidden lg:sticky lg:top-24 lg:block">
-            <FilterBar
-              variant="vertical"
+      <Suspense fallback={null}>
+        <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr] lg:gap-10">
+          <FilterSidebar
+            key={filtersKey}
+            locations={locations}
+            initialFilters={filters}
+          />
+
+          <div className="min-w-0">
+            <ResultsToolbar
+              key={filtersKey}
+              filters={filters}
               locations={locations}
-              initialFilters={filters}
-            />
-          </div>
-        </aside>
-
-        <div className="min-w-0 flex-1">
-          <Suspense fallback={null}>
-            <PropertiesToolbar
               sortBy={filters.sortBy ?? "newest"}
               view={view}
             />
-          </Suspense>
-          <div className="mt-6">
-            <PropertyResults
+            <PropertiesGrid
               key={results.map((property) => property.id).join(",")}
               properties={results}
               view={view}
             />
           </div>
         </div>
-      </div>
+      </Suspense>
     </Container>
   );
 }

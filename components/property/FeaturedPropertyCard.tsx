@@ -118,22 +118,24 @@ export function FeaturedPropertyCard({ property }: { property: Property }) {
                 <div className="mt-4 h-px bg-neutral-100" />
 
                 <div className="mt-3.5 flex items-center gap-x-5 text-[13px] text-neutral-600">
-                    <span
-                        className="inline-flex shrink-0 items-center gap-1.5"
-                        aria-label={`${property.bedrooms} bedrooms`}
-                    >
-                        <BedDouble
-                            aria-hidden="true"
-                            className="size-4 shrink-0 text-neutral-400"
-                            strokeWidth={1.75}
-                        />
-                        <span className="font-medium tabular-nums text-neutral-800">
-                            {property.bedrooms}
+                    {property.bedrooms > 0 && (
+                        <span
+                            className="inline-flex shrink-0 items-center gap-1.5"
+                            aria-label={`${property.bedrooms} bedrooms`}
+                        >
+                            <BedDouble
+                                aria-hidden="true"
+                                className="size-4 shrink-0 text-neutral-400"
+                                strokeWidth={1.75}
+                            />
+                            <span className="font-medium tabular-nums text-neutral-800">
+                                {property.bedrooms}
+                            </span>
+                            <span className="hidden text-neutral-500 xs:inline">
+                                beds
+                            </span>
                         </span>
-                        <span className="hidden text-neutral-500 xs:inline">
-                            beds
-                        </span>
-                    </span>
+                    )}
 
                     <span
                         className="inline-flex shrink-0 items-center gap-1.5"

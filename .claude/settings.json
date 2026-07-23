@@ -69,7 +69,17 @@
       "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-about.cjs\")",
       "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-about2.cjs\")",
       "Bash(lsof -ti:3000 -sTCP:LISTEN)",
-      "Bash(xargs -r kill)"
+      "Bash(xargs -r kill)",
+      "Bash(nohup npm run dev)",
+      "Bash(disown)",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-properties.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-mobile-toolbar.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-mid-breakpoints.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-secondary-pages.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-dashboard.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-add-property.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-addprop-mobile.cjs\")",
+      "Bash(node \"C:/Users/HP/AppData/Local/Temp/claude/c--Users-HP-Desktop-Lux-Estate/31412234-975e-406f-a6be-6d8461e53238/scratchpad/check-edit-property.cjs\")"
     ]
   }
 }
