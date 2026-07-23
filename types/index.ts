@@ -32,6 +32,7 @@ export interface User {
   name: string;
   email: string;
   avatar?: string;
+  phone?: string;
   createdAt: string;
 }
 
@@ -53,5 +54,5 @@ export interface PropertyFilters {
   maxPrice?: number;
   bedrooms?: number;
   bathrooms?: number;
-  sortBy?: "newest" | "price-asc" | "price-desc";
+  sortBy?: "newest" | "price-asc" | "price-desc" | "beds-desc";
 }

@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// --- Better Auth models -----------------------------------------------
+// Field shapes verified against the current official Better Auth docs
+// (docs/concepts/database core schema) — do not hand-edit without
+// re-checking those docs first.
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions   Session[]
+  accounts   Account[]
+  properties Property[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String    @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+}
+
+// --- App models ---------------------------------------------------------
+
+enum ListingType {
+  BUY
+  RENT
+}
+
+enum PropertyType {
+  APARTMENT
+  VILLA
+  HOUSE
+  LAND
+  OFFICE
+  SHOP
+}
+
+enum PropertyStatus {
+  ACTIVE
+  SOLD
+  RENTED
+}
+
+model Property {
+  id           String         @id @default(cuid())
+  title        String
+  description  String         @db.Text
+  propertyType PropertyType
+  listingType  ListingType
+  price        Int
+  currency     String         @default("USD")
+  location     String
+  address      String?
+  bedrooms     Int
+  bathrooms    Int
+  size         Int
+  amenities    String[]
+  images       String[]
+  status       PropertyStatus @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  inquiries Inquiry[]
+
+  @@index([listingType])
+  @@index([propertyType])
+  @@index([location])
+  @@index([price])
+  @@index([ownerId])
+}
+
+model Inquiry {
+  id           String   @id @default(cuid())
+  senderName   String
+  senderEmail  String
+  senderPhone  String?
+  message      String   @db.Text
+  createdAt    DateTime @default(now())
+
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}

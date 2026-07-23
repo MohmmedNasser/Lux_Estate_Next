@@ -20,8 +20,8 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-secondary/40">
-      <Container className="grid grid-cols-1 gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="border-t border-neutral-200">
+      <Container className="grid grid-cols-1 gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4 lg:py-20">
         <div className="flex flex-col gap-3">
           <span className="text-xl font-bold tracking-tight text-foreground">
             Lux Estate
@@ -33,15 +33,15 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-foreground">
+          <h3 className="text-[13px] font-semibold text-neutral-900">
             Quick Links
           </h3>
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col">
             {quickLinks.map((link) => (
               <li key={link.label}>
                 <Link
                   href={link.href}
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="block py-1 text-[14px] text-neutral-600 transition-colors hover:text-amber-800"
                 >
                   {link.label}
                 </Link>
@@ -51,8 +51,10 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-foreground">Contact</h3>
-          <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+          <h3 className="text-[13px] font-semibold text-neutral-900">
+            Contact
+          </h3>
+          <ul className="flex flex-col gap-2 text-[14px] text-neutral-600">
             <li>123 Congress Ave, Austin, TX</li>
             <li>+1 (512) 555-0100</li>
             <li>hello@luxestate.com</li>
@@ -61,14 +63,16 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <h3 className="text-sm font-semibold text-foreground">Follow Us</h3>
+          <h3 className="text-[13px] font-semibold text-neutral-900">
+            Follow Us
+          </h3>
           <div className="flex gap-3">
             {socialLinks.map(({ href, label, icon: Icon }) => (
               <Link
                 key={label}
                 href={href}
                 aria-label={label}
-                className="flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                className="grid size-10 place-items-center rounded-full text-neutral-500 ring-1 ring-neutral-200 transition-all duration-300 hover:bg-amber-50 hover:text-amber-700 hover:ring-amber-700"
               >
                 <Icon className="size-4" />
               </Link>
@@ -77,13 +81,12 @@ export function Footer() {
         </div>
       </Container>
 
-      <div className="border-t border-border py-6">
-        <Container>
-          <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Lux Estate. All rights reserved.
-          </p>
-        </Container>
-      </div>
+      <Container>
+        <div className="flex flex-col items-center gap-2 border-t border-neutral-200 pt-8 pb-10 text-center text-[13px] text-neutral-500 sm:flex-row sm:justify-between sm:pb-8 sm:text-left">
+          <p>© {new Date().getFullYear()} Lux Estate. All rights reserved.</p>
+          <p>Owner-direct listings, no agent fees.</p>
+        </div>
+      </Container>
     </footer>
   );
 }

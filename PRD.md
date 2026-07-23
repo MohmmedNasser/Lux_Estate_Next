@@ -12,7 +12,8 @@ A simple real estate web platform where users can browse properties for sale or 
 
 **Project name:** Lux Estate
 **Type:** Web application
-**Stack:** Next.js 16 (App Router) + TypeScript + Tailwind CSS
+**Stack:** Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + framer-motion + shadcn/ui (on Base UI, not Radix)
+**Brand accent:** amber-700, wired through the `--primary` design token in `app/globals.css` (so `bg-primary` == `bg-amber-700`)
 
 ---
 
@@ -113,6 +114,7 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
+    phone?: string;
     createdAt: string;
 }
 
@@ -134,7 +136,7 @@ export interface PropertyFilters {
     maxPrice?: number;
     bedrooms?: number;
     bathrooms?: number;
-    sortBy?: "newest" | "price-asc" | "price-desc";
+    sortBy?: "newest" | "price-asc" | "price-desc" | "beds-desc";
 }
 ```
 
@@ -185,6 +187,6 @@ Responsiveness review, SEO metadata, validation, error handling, deployment.
 - Build **one page at a time**. Do not scaffold the entire site in a single step.
 - In Phase 1, use **mock data only** — no database calls, no auth logic.
 - All mock data must match the types in section 6 exactly.
-- Reuse shared components (e.g. `PropertyCard`, `FilterBar`) instead of duplicating markup.
+- Reuse shared components (e.g. `FeaturedPropertyCard`, `FilterSidebar`) instead of duplicating markup.
 - Do not add features listed under **Out of Scope**.
 - Keep components small and typed with TypeScript.
